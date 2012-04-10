@@ -1,5 +1,6 @@
 #include "Echo.h"
 #include "Log.h"
+#include "winConsole.h"
 #include <cstdio>
 
 CEcho::CEcho(SendFunc sendFunc)
@@ -18,7 +19,7 @@ void CEcho::Process(int clientID, const char* pData, int size)
 	if (m_asynClients.find(clientID) == m_asynClients.end())
 		Send(clientID, pData, size);
 	else
-		printf("Client[%d] receive: %s\n", clientID, pData);
+		CONSOLE->printf("Client[%d] receive: %s\n", clientID, pData);
 }
 
 void CEcho::Send(int clientID, const char* pData, int size)
@@ -29,7 +30,7 @@ void CEcho::Send(int clientID, const char* pData, int size)
 
 void CEcho::End(int clientID)
 {
-	printf("Client[%d] disconnect.\n", clientID);
+	CONSOLE->printf("Client[%d] disconnect.\n", clientID);
 	m_asynClients.erase(clientID);
 }
 

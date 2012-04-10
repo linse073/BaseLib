@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetLib", "NetLib\NetLib.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestNet", "TestNet\TestNet.vcproj", "{D91C3F50-47B0-4796-B04C-A4F30BD34EDB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConsole", "TestConsole\TestConsole.vcproj", "{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{D91C3F50-47B0-4796-B04C-A4F30BD34EDB}.Debug|Win32.Build.0 = Debug|Win32
 		{D91C3F50-47B0-4796-B04C-A4F30BD34EDB}.Release|Win32.ActiveCfg = Release|Win32
 		{D91C3F50-47B0-4796-B04C-A4F30BD34EDB}.Release|Win32.Build.0 = Release|Win32
+		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Debug|Win32.Build.0 = Debug|Win32
+		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Release|Win32.ActiveCfg = Release|Win32
+		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

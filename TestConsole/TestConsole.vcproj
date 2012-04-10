@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="TestNet"
-	ProjectGUID="{D91C3F50-47B0-4796-B04C-A4F30BD34EDB}"
-	RootNamespace="TestNet"
+	Name="TestConsole"
+	ProjectGUID="{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}"
+	RootNamespace="TestConsole"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Common&quot;;&quot;$(SolutionDir)NetLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)Common&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="NetLib.lib ws2_32.lib mswsock.lib Psapi.lib"
+				AdditionalDependencies="Psapi.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)Libs&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -117,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Common&quot;;&quot;$(SolutionDir)NetLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)Common&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -136,9 +135,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="NetLib.lib ws2_32.lib mswsock.lib Psapi.lib"
+				AdditionalDependencies="Psapi.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)Libs&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -177,23 +175,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Echo.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Packet.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\TestNet.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\WorkQueue.cpp"
+				RelativePath=".\TestConsole.cpp"
 				>
 			</File>
 		</Filter>
@@ -203,23 +189,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Echo.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Packet.h"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
 				RelativePath=".\targetver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\WorkQueue.h"
 				>
 			</File>
 		</Filter>
@@ -232,10 +206,6 @@
 		<Filter
 			Name="Common"
 			>
-			<File
-				RelativePath="..\Common\BaseType.h"
-				>
-			</File>
 			<File
 				RelativePath="..\Common\Lock.cpp"
 				>
@@ -250,14 +220,6 @@
 			</File>
 			<File
 				RelativePath="..\Common\Log.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Common\Util.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Common\Util.h"
 				>
 			</File>
 			<File

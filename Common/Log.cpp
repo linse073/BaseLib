@@ -1,5 +1,6 @@
 #include "Log.h"
 #include "Lock.h"
+#include "winConsole.h"
 #include <cstdio>
 #include <ctime>
 #include <Psapi.h>
@@ -12,7 +13,6 @@ CLog* CLog::GetInstance()
 
 CLog::CLog()
 {
-	InitializeCriticalSection(&m_criticalSection);
 	char logFileName[512] = "Log/";
 	GetModuleBaseNameA(GetCurrentProcess(), NULL, PTAIL(logFileName));
 	char* dotPos = strchr(logFileName, '.');
@@ -27,7 +27,6 @@ CLog::CLog()
 
 CLog::~CLog()
 {
-	DeleteCriticalSection(&m_criticalSection);
 	if (m_logFile.is_open())
 		m_logFile.close();
 }
@@ -66,8 +65,10 @@ void CLog::Log(const char* file, const char* func, int line, DWORD dwError, cons
 		}
 	}
 
-	CLock lock(&m_criticalSection);
-	printf("%s", buf);
+	{
+		ConsoleColor consoleColor(FOREGROUND_RED|FOREGROUND_INTENSITY);
+		CONSOLE->printf("%s", buf);
+	}
 	if (m_logFile.is_open())
 		m_logFile << buf << std::endl;
 }
