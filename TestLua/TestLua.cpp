@@ -1,19 +1,15 @@
-// TestConsole.cpp : Defines the entry point for the console application.
+// TestLua.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
 #include "winConsole.h"
-#include "Log.h"
+#include "LuaWrap.h"
 #include <signal.h>
 
 using std::tr1::bind;
 using namespace std::tr1::placeholders;
 
-void processFunc(const char* cmd)
-{
-	ConsoleColor consoleColor(FOREGROUND_BLUE|FOREGROUND_INTENSITY);
-	CONSOLE->printf(cmd);
-}
+LUAMOD_API int open_elib(lua_State* L);
 
 bool run = true;
 BOOL WINAPI HandlerRoutine(DWORD ctrlTpye)
@@ -24,14 +20,15 @@ BOOL WINAPI HandlerRoutine(DWORD ctrlTpye)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	WinConsole console("TestConsole", bind(&processFunc, _1));
+	CLuaWrap luaWrap;
+	WinConsole console("TestLua", bind(&CLuaWrap::Command, &luaWrap, _1));
 	if (SetConsoleCtrlHandler(HandlerRoutine, TRUE) == 0)
 		LOG("Fail to call SetConsoleCtrlHandler.");
-	LOG("Virtula console.");
+	luaWrap.OpenLib(open_elib);
+	luaWrap.Call("elib.luascript", "../Script");
 	while (run)
-	{
 		console.process();
-	}
 
 	return 0;
 }
+

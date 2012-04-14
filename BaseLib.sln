@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestNet", "TestNet\TestNet.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConsole", "TestConsole\TestConsole.vcproj", "{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLua", "TestLua\TestLua.vcproj", "{54FFCF3B-26E0-4A19-BB0F-D3D8DFD63AB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Debug|Win32.Build.0 = Debug|Win32
 		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Release|Win32.ActiveCfg = Release|Win32
 		{1F83B79A-7FF5-48AE-91E8-1DCF105F0AAC}.Release|Win32.Build.0 = Release|Win32
+		{54FFCF3B-26E0-4A19-BB0F-D3D8DFD63AB9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{54FFCF3B-26E0-4A19-BB0F-D3D8DFD63AB9}.Debug|Win32.Build.0 = Debug|Win32
+		{54FFCF3B-26E0-4A19-BB0F-D3D8DFD63AB9}.Release|Win32.ActiveCfg = Release|Win32
+		{54FFCF3B-26E0-4A19-BB0F-D3D8DFD63AB9}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------
 
 #include "winConsole.h"
-#include "Lock.h"
 #include <assert.h>
 
 static WinConsole* s_pWinConsole = NULL;
@@ -29,7 +28,7 @@ WinConsole::WinConsole(const char* title, ExecFunc execFunc)
 	stdIn  = GetStdHandle(STD_INPUT_HANDLE);
 	stdErr = GetStdHandle(STD_ERROR_HANDLE);
 
-	_printf("%s", CONSOLE_PROMPT);
+	_printf(CONSOLE_PROMPT);
 	s_pWinConsole = this;
 
 	GetConsoleScreenBufferInfo(stdOut, &csbi);
@@ -260,7 +259,7 @@ void WinConsole::process()
 
 						inbuf[inpos] = 0;
 						outbuf[outpos] = 0;
-						_printf("%s", outbuf);
+						_printf(outbuf);
 
 						// Pass the line along to the console for execution.
 						command = true;
@@ -274,7 +273,7 @@ void WinConsole::process()
 						// back to the beginning
 						iCmdIndex = (iCmdIndex + 1) % MAX_CMDS;
 
-						_printf("%s", CONSOLE_PROMPT);
+						_printf(CONSOLE_PROMPT);
 						inpos = outpos = 0;
 						break;
 					default:
@@ -288,7 +287,7 @@ void WinConsole::process()
 		if (outpos)
 		{
 			outbuf[outpos] = 0;
-			_printf("%s", outbuf);
+			_printf(outbuf);
 		}
 	}
 }
@@ -324,6 +323,7 @@ void WinConsole::printf(const char* fmt, ...)
 }
 
 ConsoleColor::ConsoleColor(WORD color)
+:m_lock(&CONSOLE->m_criticalSection)
 {
 	SetConsoleTextAttribute(CONSOLE->stdOut, color);
 }

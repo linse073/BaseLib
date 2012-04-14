@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <WinSock2.h>
+#include "Lock.h"
 
 #define MAX_CMDS 20
 #define CONSOLE_PROMPT "$ "
@@ -54,6 +55,9 @@ class ConsoleColor
 public:
 	ConsoleColor(WORD color);
 	~ConsoleColor();
+
+private:
+	CLock m_lock;
 };
 
 #endif
