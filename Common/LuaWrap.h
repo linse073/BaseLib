@@ -203,46 +203,46 @@ public:
 #define INIT_DEFINE_LUA_FUNC	\
 	static luaL_Reg lib[MAX_LUA_REG] = {0};
 
-#define DEFINE_LUA_FUNC_0(func)						\
-	static int func##_define(lua_State* L);			\
-	static int func(lua_State* L)					\
-	{												\
-		return func##_define(L);					\
-	}												\
-	CLuaAddFunc func##_addtolib(lib, #func, func);	\
+#define DEFINE_LUA_FUNC_0(func)								\
+	static int func##_define(lua_State* L);					\
+	static int func(lua_State* L)							\
+	{														\
+		return func##_define(L);							\
+	}														\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
 	static int func##_define(lua_State* L)
 
-#define DEFINE_LUA_FUNC_1(func, t1)					\
-	static int func##_define(lua_State* L, t1);		\
-	static int func(lua_State* L)					\
-	{												\
-		t1 arg1;									\
-		GetLuaArg(L, arg1);							\
-		return func##_define(L, arg1);				\
-	}												\
-	CLuaAddFunc func##_addtolib(lib, #func, func);	\
+#define DEFINE_LUA_FUNC_1(func, t1)							\
+	static int func##_define(lua_State* L, t1);				\
+	static int func(lua_State* L)							\
+	{														\
+		t1 arg1;											\
+		GetLuaArg(L, arg1);									\
+		return func##_define(L, arg1);						\
+	}														\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
 	static int func##_define(lua_State* L, t1 arg1)
 
-#define DEFINE_LUA_FUNC_2(func, t1, t2)				\
-	static int func##_define(lua_State* L, t1, t2);	\
-	static int func(lua_State* L)					\
-	{												\
-		t1 arg1; t2 arg2;							\
-		GetLuaArg(L, arg1, arg2);					\
-		return func##_define(L, arg1, arg2);		\
-	}												\
-	CLuaAddFunc func##_addtolib(lib, #func, func);	\
+#define DEFINE_LUA_FUNC_2(func, t1, t2)						\
+	static int func##_define(lua_State* L, t1, t2);			\
+	static int func(lua_State* L)							\
+	{														\
+		t1 arg1; t2 arg2;									\
+		GetLuaArg(L, arg1, arg2);							\
+		return func##_define(L, arg1, arg2);				\
+	}														\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
 	static int func##_define(lua_State* L, t1 arg1, t2 arg2)
 
-#define DEFINE_LUA_FUNC_3(func, t1, t2, t3)				\
-	static int func##_define(lua_State* L, t1, t2, t3);	\
-	static int func(lua_State* L)						\
-	{													\
-		t1 arg1; t2 arg2; t3 arg3;						\
-		GetLuaArg(L, arg1, arg2, arg3);					\
-		return func##_define(L, arg1, arg2, arg3);		\
-	}													\
-	CLuaAddFunc func##_addtolib(lib, #func, func);		\
+#define DEFINE_LUA_FUNC_3(func, t1, t2, t3)					\
+	static int func##_define(lua_State* L, t1, t2, t3);		\
+	static int func(lua_State* L)							\
+	{														\
+		t1 arg1; t2 arg2; t3 arg3;							\
+		GetLuaArg(L, arg1, arg2, arg3);						\
+		return func##_define(L, arg1, arg2, arg3);			\
+	}														\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
 	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3)
 
 #define DEFINE_LUA_FUNC_4(func, t1, t2, t3, t4)				\
@@ -253,7 +253,7 @@ public:
 		GetLuaArg(L, arg1, arg2, arg3, arg4);				\
 		return func##_define(L, arg1, arg2, arg3, arg4);	\
 	}														\
-	CLuaAddFunc func##_addtolib(lib, #func, func);			\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
 	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3, t4 arg4)
 
 #define DEFINE_LUA_FUNC_5(func, t1, t2, t3, t4, t5)				\
@@ -264,7 +264,7 @@ public:
 		GetLuaArg(L, arg1, arg2, arg3, arg4, arg5);				\
 		return func##_define(L, arg1, arg2, arg3, arg4, arg5);	\
 	}															\
-	CLuaAddFunc func##_addtolib(lib, #func, func);				\
+	static CLuaAddFunc func##_addtolib(lib, #func, func);		\
 	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3, t4 arg4, t5 arg5)
 
 #endif
