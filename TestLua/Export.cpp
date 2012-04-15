@@ -4,10 +4,9 @@
 
 INIT_DEFINE_LUA_FUNC
 
-DEFINE_LUA_FUNC_1(printf, const char*)
+static void printf(lua_State* L, const char* s)
 {
-	CONSOLE->printf(arg1);
-	return 0;
+	CONSOLE->printf(s);
 }
 
 static void enumlua(lua_State* L, std::string path)
@@ -39,11 +38,20 @@ static void enumlua(lua_State* L, std::string path)
 	FindClose(hFindFile);  
 }
 
-DEFINE_LUA_FUNC_1(luascript, const char*)
+static void luascript(lua_State* L, const char* path)
 {
-	enumlua(L, arg1);
-	return 0;
+	enumlua(L, path);
 }
+
+static void chello(lua_State* L, const char** s, int* i)
+{
+	*s = "hello from c++.";
+	*i = 1;
+}
+
+LUA_FUNC_EXPORT(printf, printf)
+LUA_FUNC_EXPORT(luascript, luascript)
+LUA_FUNC_EXPORT(chello, chello)
 
 LUAMOD_API int open_elib(lua_State* L)
 {

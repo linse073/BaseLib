@@ -8,46 +8,82 @@
 template <typename T>
 struct LuaArg
 {
-	LuaArg(T val):value(val){}
-	void Push(lua_State* L);
-	T To(lua_State* L, int index);
-	T value;
+	static void Push(lua_State* L, int& index, T value);
+	static void To(lua_State* L, int& index, T& value);
+	static void RPush(lua_State* L, T value);
+	static void Get(lua_State* L, int& index, T& value);
 };
 
 template <>
 struct LuaArg<bool>
 {
-	LuaArg(bool val):value(val){}
-	void Push(lua_State* L){ lua_pushboolean(L, value); }
-	bool To(lua_State* L, int index){ return luaL_checkint(L, index)!=0; }
-	bool value;
+	static void Push(lua_State* L, int& index, bool value){ ++index; lua_pushboolean(L, value); }
+	static void To(lua_State* L, int& index, bool& value){ ++index; value = luaL_checkint(L, index)!=0; }
+	static void RPush(lua_State* L, bool){}
+	static void Get(lua_State* L, int&, bool&){}
+};
+
+template <>
+struct LuaArg<bool*>
+{
+	static void Push(lua_State* L, int&, bool*){}
+	static void To(lua_State* L, int&, bool*& value){ value = new bool(); }
+	static void RPush(lua_State* L, bool*& value){ lua_pushboolean(L, *value); delete value; value = NULL; }
+	static void Get(lua_State* L, int& index, bool* value){ *value = (luaL_checkint(L, index)!=0); ++index; }
 };
 
 template <>
 struct LuaArg<const char*>
 {
-	LuaArg(const char* val):value(val){}
-	void Push(lua_State* L){ lua_pushstring(L, value); }
-	const char* To(lua_State* L, int index){ return luaL_checkstring(L, index); }
-	const char* value;
+	static void Push(lua_State* L, int& index, const char* value){ ++index; lua_pushstring(L, value); }
+	static void To(lua_State* L, int& index, const char*& value){ ++index; value = luaL_checkstring(L, index); }
+	static void RPush(lua_State* L, const char*){}
+	static void Get(lua_State* L, int&, const char*&){}
+};
+
+template <>
+struct LuaArg<const char**>
+{
+	static void Push(lua_State* L, int&, const char**){}
+	static void To(lua_State* L, int&, const char**& value){ value = new const char*(); }
+	static void RPush(lua_State* L, const char**& value){ lua_pushstring(L, *value); delete value; value = NULL; }
+	static void Get(lua_State* L, int& index, const char** value){ *value = luaL_checkstring(L, index); ++index; }
 };
 
 template <>
 struct LuaArg<int>
 {
-	LuaArg(int val):value(val){}
-	void Push(lua_State* L){ lua_pushinteger(L, value); }
-	int To(lua_State* L, int index){ return luaL_checkint(L, index); }
-	int value;
+	static void Push(lua_State* L, int& index, int value){ ++index; lua_pushinteger(L, value); }
+	static void To(lua_State* L, int& index, int& value){ ++index; value = luaL_checkint(L, index); }
+	static void RPush(lua_State* L, int){}
+	static void Get(lua_State* L, int&, int&){}
+};
+
+template <>
+struct LuaArg<int*>
+{
+	static void Push(lua_State* L, int&, int*){}
+	static void To(lua_State* L, int&, int*& value){ value = new int(); }
+	static void RPush(lua_State* L, int*& value){ lua_pushinteger(L, *value); delete value; value = NULL; }
+	static void Get(lua_State* L, int& index, int* value){ *value = luaL_checkint(L, index); ++index; }
 };
 
 template <>
 struct LuaArg<double>
 {
-	LuaArg(double val):value(val){}
-	void Push(lua_State* L){ lua_pushnumber(L, value); }
-	double To(lua_State* L, int index){ return luaL_checknumber(L, index); }
-	double value;
+	static void Push(lua_State* L, int& index, double value){ ++index; lua_pushnumber(L, value); }
+	static void To(lua_State* L, int& index, double& value){ ++index; value = luaL_checknumber(L, index); }
+	static void RPush(lua_State* L, double){}
+	static void Get(lua_State* L, int&, double&){}
+};
+
+template <>
+struct LuaArg<double*>
+{
+	static void Push(lua_State* L, int&, double*){}
+	static void To(lua_State* L, int&, double*& value){ value = new double(); }
+	static void RPush(lua_State* L, double*& value){ lua_pushnumber(L, *value); delete value; value = NULL; }
+	static void Get(lua_State* L, int& index, double* value){ *value = luaL_checknumber(L, index); ++index; }
 };
 
 class CLuaWrap
@@ -68,72 +104,108 @@ public:
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
 	}
 	template <typename T>
 	void Call(const char* func, T arg1)
 	{
+		const int totalarg = 1;
 		PushFunc(func);
-		LuaArg<T>(arg1).Push(m_L);
-		if (lua_pcall(m_L, 1, 0, 0))
+		int index = 0;
+		LuaArg<T>::Push(m_L, index, arg1);
+		if (lua_pcall(m_L, index, totalarg-index, 0))
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
+		index -= totalarg;
+		LuaArg<T>::Get(m_L, index, arg1);
 	}
 	template <typename T1, typename T2>
 	void Call(const char* func, T1 arg1, T2 arg2)
 	{
+		const int totalarg = 2;
 		PushFunc(func);
-		LuaArg<T1>(arg1).Push(m_L);
-		LuaArg<T2>(arg2).Push(m_L);
-		if (lua_pcall(m_L, 2, 0, 0))
+		int index = 0;
+		LuaArg<T1>::Push(m_L, index, arg1);
+		LuaArg<T2>::Push(m_L, index, arg2);
+		if (lua_pcall(m_L, index, totalarg-index, 0))
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
+		index -= totalarg;
+		LuaArg<T1>::Get(m_L, index, arg1);
+		LuaArg<T2>::Get(m_L, index, arg2);
 	}
 	template <typename T1, typename T2, typename T3>
 	void Call(const char* func, T1 arg1, T2 arg2, T3 arg3)
 	{
+		const int totalarg = 3;
 		PushFunc(func);
-		LuaArg<T1>(arg1).Push(m_L);
-		LuaArg<T2>(arg2).Push(m_L);
-		LuaArg<T3>(arg3).Push(m_L);
-		if (lua_pcall(m_L, 3, 0, 0))
+		int index = 0;
+		LuaArg<T1>::Push(m_L, index, arg1);
+		LuaArg<T2>::Push(m_L, index, arg2);
+		LuaArg<T3>::Push(m_L, index, arg3);
+		if (lua_pcall(m_L, index, totalarg-index, 0))
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
+		index -= totalarg;
+		LuaArg<T1>::Get(m_L, index, arg1);
+		LuaArg<T2>::Get(m_L, index, arg2);
+		LuaArg<T3>::Get(m_L, index, arg3);
 	}
 	template <typename T1, typename T2, typename T3, typename T4>
 	void Call(const char* func, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
 	{
+		const int totalarg = 4;
 		PushFunc(func);
-		LuaArg<T1>(arg1).Push(m_L);
-		LuaArg<T2>(arg2).Push(m_L);
-		LuaArg<T3>(arg3).Push(m_L);
-		LuaArg<T4>(arg4).Push(m_L);
-		if (lua_pcall(m_L, 4, 0, 0))
+		int index = 0;
+		LuaArg<T1>::Push(m_L, index, arg1);
+		LuaArg<T2>::Push(m_L, index, arg2);
+		LuaArg<T3>::Push(m_L, index, arg3);
+		LuaArg<T4>::Push(m_L, index, arg4);
+		if (lua_pcall(m_L, index, totalarg-index, 0))
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
+		index -= totalarg;
+		LuaArg<T1>::Get(m_L, index, arg1);
+		LuaArg<T2>::Get(m_L, index, arg2);
+		LuaArg<T3>::Get(m_L, index, arg3);
+		LuaArg<T4>::Get(m_L, index, arg4);
 	}
 	template <typename T1, typename T2, typename T3, typename T4, typename T5>
 	void Call(const char* func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
 	{
+		const int totalarg = 5;
 		PushFunc(func);
-		LuaArg<T1>(arg1).Push(m_L);
-		LuaArg<T2>(arg2).Push(m_L);
-		LuaArg<T3>(arg3).Push(m_L);
-		LuaArg<T4>(arg4).Push(m_L);
-		LuaArg<T5>(arg5).Push(m_L);
-		if (lua_pcall(m_L, 5, 0, 0))
+		int index = 0;
+		LuaArg<T1>::Push(m_L, index, arg1);
+		LuaArg<T2>::Push(m_L, index, arg2);
+		LuaArg<T3>::Push(m_L, index, arg3);
+		LuaArg<T4>::Push(m_L, index, arg4);
+		LuaArg<T5>::Push(m_L, index, arg5);
+		if (lua_pcall(m_L, index, totalarg-index, 0))
 		{
 			LOG("Fail to call function[%s], error[%s].", func, lua_tostring(m_L, -1));
 			lua_pop(m_L, 1);
+			return;
 		}
+		index -= totalarg;
+		LuaArg<T1>::Get(m_L, index, arg1);
+		LuaArg<T2>::Get(m_L, index, arg2);
+		LuaArg<T3>::Get(m_L, index, arg3);
+		LuaArg<T4>::Get(m_L, index, arg4);
+		LuaArg<T5>::Get(m_L, index, arg5);
 	}
 
 private:
@@ -142,40 +214,91 @@ private:
 	lua_State* m_L;
 };
 
+inline int LuaFunc(lua_State* L, void (*func)(lua_State*))
+{
+	const int totalarg = 0;
+	func(L);
+	return 0;
+}
+
 template <typename T>
-void GetLuaArg(lua_State* L, T& arg1)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T))
 {
-	arg1 = LuaArg<T>(arg1).To(L, 1);
+	const int totalarg = 1;
+	int index = 0;
+	T arg1=T();
+	LuaArg<T>::To(L, index, arg1);
+	func(L, arg1);
+	LuaArg<T>::RPush(L, arg1);
+	return totalarg-index;
 }
+
 template <typename T1, typename T2>
-void GetLuaArg(lua_State* L, T1& arg1, T2& arg2)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2))
 {
-	arg1 = LuaArg<T1>(arg1).To(L, 1);
-	arg2 = LuaArg<T2>(arg2).To(L, 2);
+	const int totalarg = 2;
+	int index = 0;
+	T1 arg1=T1(); T2 arg2=T2();
+	LuaArg<T1>::To(L, index, arg1);
+	LuaArg<T2>::To(L, index, arg2);
+	func(L, arg1, arg2);
+	LuaArg<T1>::RPush(L, arg1);
+	LuaArg<T2>::RPush(L, arg2);
+	return totalarg-index;
 }
+
 template <typename T1, typename T2, typename T3>
-void GetLuaArg(lua_State* L, T1& arg1, T2& arg2, T3& arg3)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3))
 {
-	arg1 = LuaArg<T1>(arg1).To(L, 1);
-	arg2 = LuaArg<T2>(arg2).To(L, 2);
-	arg3 = LuaArg<T2>(arg3).To(L, 3);
+	const int totalarg = 3;
+	int index = 0;
+	T1 arg1=T1(); T2 arg2=T2(); T3 arg3=T3();
+	LuaArg<T1>::To(L, index, arg1);
+	LuaArg<T2>::To(L, index, arg2);
+	LuaArg<T3>::To(L, index, arg3);
+	func(L, arg1, arg2, arg3);
+	LuaArg<T1>::RPush(L, arg1);
+	LuaArg<T2>::RPush(L, arg2);
+	LuaArg<T3>::RPush(L, arg3);
+	return totalarg-index;
 }
+
 template <typename T1, typename T2, typename T3, typename T4>
-void GetLuaArg(lua_State* L, T1& arg1, T2& arg2, T3& arg3, T4& arg4)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3, T4))
 {
-	arg1 = LuaArg<T1>(arg1).To(L, 1);
-	arg2 = LuaArg<T2>(arg2).To(L, 2);
-	arg3 = LuaArg<T3>(arg3).To(L, 3);
-	arg4 = LuaArg<T4>(arg4).To(L, 4);
+	const int totalarg = 4;
+	int index = 0;
+	T1 arg1=T1(); T2 arg2=T2(); T3 arg3=T3(); T4 arg4=T4();
+	LuaArg<T1>::To(L, index, arg1);
+	LuaArg<T2>::To(L, index, arg2);
+	LuaArg<T3>::To(L, index, arg3);
+	LuaArg<T4>::To(L, index, arg4);
+	func(L, arg1, arg2, arg3, arg4);
+	LuaArg<T1>::RPush(L, arg1);
+	LuaArg<T2>::RPush(L, arg2);
+	LuaArg<T3>::RPush(L, arg3);
+	LuaArg<T4>::RPush(L, arg4);
+	return totalarg-index;
 }
+
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void GetLuaArg(lua_State* L, T1& arg1, T2& arg2, T3& arg3, T4& arg4, T5& arg5)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3, T4, T5), int retnum)
 {
-	arg1 = LuaArg<T1>(arg1).To(L, 1);
-	arg2 = LuaArg<T2>(arg2).To(L, 2);
-	arg3 = LuaArg<T3>(arg3).To(L, 3);
-	arg4 = LuaArg<T4>(arg4).To(L, 4);
-	arg5 = LuaArg<T5>(arg5).To(L, 5);
+	const int totalarg = 5;
+	int index = 0;
+	T1 arg1=T1(); T2 arg2=T2(); T3 arg3=T3(); T4 arg4=T4(); T5 arg5=T5();
+	LuaArg<T1>::To(L, index, arg1);
+	LuaArg<T2>::To(L, index, arg2);
+	LuaArg<T3>::To(L, index, arg3);
+	LuaArg<T4>::To(L, index, arg4);
+	LuaArg<T5>::To(L, index, arg5);
+	func(L, arg1, arg2, arg3, arg4, arg5);
+	LuaArg<T1>::RPush(L, arg1);
+	LuaArg<T2>::RPush(L, arg2);
+	LuaArg<T3>::RPush(L, arg3);
+	LuaArg<T4>::RPush(L, arg4);
+	LuaArg<T5>::RPush(L, arg5);
+	return totalarg-index;
 }
 
 #define MAX_LUA_REG 100
@@ -203,68 +326,11 @@ public:
 #define INIT_DEFINE_LUA_FUNC	\
 	static luaL_Reg lib[MAX_LUA_REG] = {0};
 
-#define DEFINE_LUA_FUNC_0(func)								\
-	static int func##_define(lua_State* L);					\
-	static int func(lua_State* L)							\
-	{														\
-		return func##_define(L);							\
-	}														\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
-	static int func##_define(lua_State* L)
-
-#define DEFINE_LUA_FUNC_1(func, t1)							\
-	static int func##_define(lua_State* L, t1);				\
-	static int func(lua_State* L)							\
-	{														\
-		t1 arg1;											\
-		GetLuaArg(L, arg1);									\
-		return func##_define(L, arg1);						\
-	}														\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
-	static int func##_define(lua_State* L, t1 arg1)
-
-#define DEFINE_LUA_FUNC_2(func, t1, t2)						\
-	static int func##_define(lua_State* L, t1, t2);			\
-	static int func(lua_State* L)							\
-	{														\
-		t1 arg1; t2 arg2;									\
-		GetLuaArg(L, arg1, arg2);							\
-		return func##_define(L, arg1, arg2);				\
-	}														\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
-	static int func##_define(lua_State* L, t1 arg1, t2 arg2)
-
-#define DEFINE_LUA_FUNC_3(func, t1, t2, t3)					\
-	static int func##_define(lua_State* L, t1, t2, t3);		\
-	static int func(lua_State* L)							\
-	{														\
-		t1 arg1; t2 arg2; t3 arg3;							\
-		GetLuaArg(L, arg1, arg2, arg3);						\
-		return func##_define(L, arg1, arg2, arg3);			\
-	}														\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
-	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3)
-
-#define DEFINE_LUA_FUNC_4(func, t1, t2, t3, t4)				\
-	static int func##_define(lua_State* L, t1, t2, t3, t4);	\
-	static int func(lua_State* L)							\
-	{														\
-		t1 arg1; t2 arg2; t3 arg3; t4 arg4;					\
-		GetLuaArg(L, arg1, arg2, arg3, arg4);				\
-		return func##_define(L, arg1, arg2, arg3, arg4);	\
-	}														\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);	\
-	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3, t4 arg4)
-
-#define DEFINE_LUA_FUNC_5(func, t1, t2, t3, t4, t5)				\
-	static int func##_define(lua_State* L, t1, t2, t3, t4, t5);	\
-	static int func(lua_State* L)								\
-	{															\
-		t1 arg1; t2 arg2; t3 arg3; t4 arg4; t5 arg5;			\
-		GetLuaArg(L, arg1, arg2, arg3, arg4, arg5);				\
-		return func##_define(L, arg1, arg2, arg3, arg4, arg5);	\
-	}															\
-	static CLuaAddFunc func##_addtolib(lib, #func, func);		\
-	static int func##_define(lua_State* L, t1 arg1, t2 arg2, t3 arg3, t4 arg4, t5 arg5)
+#define LUA_FUNC_EXPORT(luafunc, func)	\
+	static int luafunc(lua_State* L)	\
+	{									\
+		return LuaFunc(L, func);		\
+	}									\
+	static CLuaAddFunc func##_addtolib(lib, #luafunc, luafunc);	
 
 #endif

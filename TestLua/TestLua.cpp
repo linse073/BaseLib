@@ -26,6 +26,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		LOG("Fail to call SetConsoleCtrlHandler.");
 	luaWrap.OpenLib(open_elib);
 	luaWrap.Call("elib.luascript", "../Script");
+	const char* hello = NULL;
+	int i = 0;
+	luaWrap.Call("luahello", &hello, &i);
+	console.printf("lua return:[%s][%d].", hello, i);
 	while (run)
 		console.process();
 
