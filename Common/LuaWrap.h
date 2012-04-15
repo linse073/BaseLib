@@ -282,7 +282,7 @@ int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3, T4))
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3, T4, T5), int retnum)
+int LuaFunc(lua_State* L, void (*func)(lua_State*, T1, T2, T3, T4, T5))
 {
 	const int totalarg = 5;
 	int index = 0;
